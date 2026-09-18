@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun! 🎂</title>
+    <!-- Font & Canvas Confetti Library -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        h1, h2 {
+            color: #ff4757;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #57606f;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        input[type="password"] {
+            width: 80%;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            border: 2px solid #ff6b81;
+            border-radius: 12px;
+            outline: none;
+            text-align: center;
+            letter-spacing: 4px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+            transition: transform 0.2s, background 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background-color: #ff6b81;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Styling Game 1 */
+        #game1-area {
+            height: 180px;
+            position: relative;
+            border: 2px dashed #ff6b81;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        #moving-cake {
+            position: absolute;
+            font-size: 3rem;
+            cursor: pointer;
+            user-select: none;
+            transition: top 0.2s ease, left 0.2s ease;
+        }
+
+        /* Tour Image Styling */
+        .tour-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== PAGE 1: LOCKSCREEN ==================== -->
+    <div id="page-lock" class="card">
+        <h1>🔒 Area Terlarang!</h1>
+        <p>Masukkan PIN rahasia untuk membuka pesan ulang tahun ini:</p>
+        <input type="password" id="passInput" placeholder="******" maxlength="6">
+        <br>
+        <button class="btn" onclick="checkPassword()">Buka Kunci ✨</button>
+        <p id="error-msg" style="color: #ff4757; font-weight: bold; margin-top: 10px;"></p>
+    </div>
+
+    <!-- ==================== GAME 1: TANGKAP KUE ==================== -->
+    <div id="page-game1" class="card hidden">
+        <h2>🎮 Game 1/3: Tangkap Kue Ultah!</h2>
+        <p>Klik kue ultah di bawah ini untuk lanjut. Katanya sih gampang... 😜</p>
+        <div id="game1-area">
+            <div id="moving-cake" onclick="winGame1()" onmouseover="moveCake()">🎂</div>
+        </div>
+        <p id="game1-hint" style="font-size: 0.85rem; color: #a4b0be;">Petunjuk: Kejar kue itu kalau bisa!</p>
+    </div>
+
+    <!-- ==================== GAME 2: JANGAN TEKAN TOMBOL ==================== -->
+    <div id="page-game2" class="card hidden">
+        <h2>💣 Game 2/3: Tombol Bahaya!</h2>
+        <p>Dilarang keras menekan tombol merah di bawah ini!</p>
+        <button class="btn" style="background-color: #ff3838; font-size: 1.2rem;" onclick="clickDangerButton()">JANGAN TEKAN 🚫</button>
+        <p id="danger-text" style="font-weight: bold; margin-top: 15px; color: #ff4757;"></p>
+        <button id="btn-next-g2" class="btn hidden" onclick="nextPage('page-game2', 'page-game3')">Lanjut Ke Game 3 ➡️</button>
+    </div>
+
+    <!-- ==================== GAME 3: QUIZ NGACO ==================== -->
+    <div id="page-game3" class="card hidden">
+        <h2>👑 Game 3/3: Kuis Kejujuran</h2>
+        <!-- EDIT: Pertanyaan kuis -->
+        <p>Siapa cowok paling tamvan di Muka Bumi?</p>
+        <div id="quiz-options">
+            <button class="btn" onclick="winGame3()">Zul</button>
+            <button class="btn" onclick="wrongQuiz(this)">Iqbaaal Ramadhan (yang 3 huruf a nya)</button>
+            <button class="btn" onclick="wrongQuiz(this)">Zayn Malik</button>
+        </div>
+        <p id="quiz-msg" style="color: #ff4757; margin-top: 10px; font-weight: bold;"></p>
+    </div>
+
+    <!-- ==================== TOUR 1 ==================== -->
+    <div id="page-tour1" class="card hidden">
+        <h2>Foto yang menggambarkan pemerintah yang sedang tutup mata</h2>
+        <!-- EDIT: Ganti URL Gambar Tour 1 -->
+        <img src="https://drive.google.com/drive/folders/124Z_X2xpJaFcoVMXPlJ9wGdaYprzDSc5?usp=sharing" class="tour-img" alt="Tour 1">
+        <!-- EDIT: Deskripsi Tour 1 -->
+        <p>Ini part paling susah di edit karena terlalu putih dan menyala dari yang lain mwehehehehe</p>
+        <button class="btn" onclick="nextPage('page-tour1', 'page-tour2')">Klik ini nah 🚀</button>
+    </div>
+
+    <!-- ==================== TOUR 2 ==================== -->
+    <div id="page-tour2" class="card hidden">
+        <h2>🌟 Best Photo, ngeri sunsetnya anjay</h2>
+        <!-- EDIT: Ganti URL Gambar Tour 2 -->
+        <img src="https://drive.google.com/file/d/1KJIjgzB0Pflb4x4BHLVkrDb2PDZzVIsJ/view?usp=drive_link" class="tour-img" alt="Tour 2">
+        <!-- EDIT: Deskripsi Tour 2 -->
+        <p>Ini foto pasti di pantai indah bosowa mwehehehe</p>
+        <button class="btn" onclick="showFinalPage()">Buka Pesan Utama 💌</button>
+    </div>
+
+    <!-- ==================== FINAL PAGE: UCAPAN ==================== -->
+    <div id="page-final" class="card hidden">
+        <h1>🎉 Happy Birthday! 🎉</h1>
+        <!-- Nur Fadhila Achmad -->
+        <h2 style="color: #2ed573;">Btw, Selamat Ulang Tahun!!</h2>
+        
+        <!-- EDIT: Pesan/Doa Khusus -->
+        <p>Selamat bertambah umur! Semoga tambah tinggi (eh), makin sukses, diberi kesehatan, dan jangan makin jutek balas chatnya ya. 🥳🎈</p>
+  
+
+        <button class="btn" onclick="rainConfetti()">Pencet/klik ini untuk hujan kembang api ✨</button>
+    </div>
+
+    <script>
+        // Set Password
+        const CORRECT_PASSWORD = "180900";
+
+        // Check Password Function
+        function checkPassword() {
+            const input = document.getElementById('passInput').value;
+            const errorMsg = document.getElementById('error-msg');
+            
+            if (input === CORRECT_PASSWORD) {
+                nextPage('page-lock', 'page-game1');
+            } else {
+                const funnyErrors = [
+                    "Salah woy! Inget-inget lagi deh 😜",
+                    "Tetot! Bukan itu PIN-nya!",
+                    "Ngaku deh, kamu lupa tanggal lahir sendiri ya?",
+                    "Coba lagi, kalau salah terus Nasi Goreng melayang!"
+                ];
+                const randomError = funnyErrors[Math.floor(Math.random() * funnyErrors.length)];
+                errorMsg.innerText = randomError;
+            }
+        }
+
+        // Navigation Helper
+        function nextPage(currentId, nextId) {
+            document.getElementById(currentId).classList.add('hidden');
+            document.getElementById(nextId).classList.remove('hidden');
+        }
+
+        // Game 1 logic: Moving Cake
+        let cakeClicks = 0;
+        function moveCake() {
+            if (cakeClicks < 3) {
+                const area = document.getElementById('game1-area');
+                const cake = document.getElementById('moving-cake');
+                
+                const maxX = area.clientWidth - 60;
+                const maxY = area.clientHeight - 60;
+                
+                const randomX = Math.floor(Math.random() * maxX);
+                const randomY = Math.floor(Math.random() * maxY);
+                
+                cake.style.left = randomX + 'px';
+                cake.style.top = randomY + 'px';
+                cakeClicks++;
+            }
+        }
+
+        function winGame1() {
+            alert("Hore! Kamu berhasil menangkap kue yang sangat licin ini! 🎂");
+            nextPage('page-game1', 'page-game2');
+        }
+
+        // Game 2 logic: Danger Button
+        let dangerClicks = 0;
+        function clickDangerButton() {
+            dangerClicks++;
+            const text = document.getElementById('danger-text');
+            const btnNext = document.getElementById('btn-next-g2');
+
+            if (dangerClicks === 1) {
+                text.innerText = "Kan udah dibilang JANGAN DITEKAN! Bandel banget sih!";
+            } else if (dangerClicks === 2) {
+                text.innerText = "Dua kali ditekan... Awas ya kalau ditekan lagi HP kamu meledak! 💣";
+            } else if (dangerClicks >= 3) {
+                text.innerText = "Ya sudahlah, emang dasarnya kamu penasaran orangnya. Selamat kamu lolos! 🎉";
+                btnNext.classList.remove('hidden');
+            }
+        }
+
+        // Game 3 logic: Quiz
+        function wrongQuiz(btn) {
+            btn.style.display = 'none';
+            document.getElementById('quiz-msg').innerText = "Salah besar! Coba pilih jawaban yang paling benar!";
+        }
+
+        function winGame3() {
+            alert("Nah gitu dong, terima kasih sudah jawab jujur 🤪");
+            nextPage('page-game3', 'page-tour1');
+        }
+
+        // Final Page Launch
+        function showFinalPage() {
+            nextPage('page-tour2', 'page-final');
+            rainConfetti();
+        }
+
+        // Confetti Effect
+        function rainConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+    </script>
+</body>
+</html>
